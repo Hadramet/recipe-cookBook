@@ -86,7 +86,7 @@
             Expanded="Expander1Expanded"
             FontStyle="Italic"
             FontWeight="Normal"
-            Header="Поиск рецепта">
+            Header="Searching for a recipe">
             <Grid Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
