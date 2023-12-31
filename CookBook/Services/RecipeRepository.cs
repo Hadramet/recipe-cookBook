@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using CookBook.Helpers;
 using CookBook.Model;
 
@@ -10,6 +12,7 @@ namespace CookBook.Services
     {
         private readonly string _repositoryPath;
         private readonly List<Recipe> _recipes = new();
+        private readonly IEnumerable<string> _recipeTypes = new List<string> { "Vegan", "Vegetarian", "Meat", "Fish", "Other"};
 
         public RecipeRepository(string repositoryPath)
         {
@@ -23,20 +26,21 @@ namespace CookBook.Services
         }
 
 
-        public IEnumerable<Recipe> GetRecipes()
+        public Task<IEnumerable<Recipe>> GetRecipes()
         {
-            return _recipes;
+            return Task.FromResult(_recipes.AsEnumerable());
         }
 
-        public Recipe GetRecipeById(Guid id)
+        public Task<Recipe> GetRecipeById(Guid id)
         {
             if (id == Guid.Empty)
                 throw new ArgumentNullException(nameof(id));
             var recipe = _recipes.Find(r => r.Id == id);
-            return recipe;
+            
+            return Task.FromResult(recipe);
         }
 
-        public void AddRecipe(Recipe recipe)
+        public Task AddRecipe(Recipe recipe)
         {
             if (recipe == null)
                 throw new ArgumentNullException(nameof(recipe));
@@ -44,8 +48,13 @@ namespace CookBook.Services
             try
             {
                 recipe.Id = Guid.NewGuid();
+
+                if (_recipeTypes.Contains(recipe.Type) == false)
+                    recipe.Type = _recipeTypes.Last();
+
                 string filePath = RecipeHelper.WriteRecipeToFile(recipe, _repositoryPath);
                 recipe.FileName = Path.GetFileName(filePath);
+                
                 _recipes.Add(recipe);
             }
             catch (Exception e)
@@ -53,9 +62,10 @@ namespace CookBook.Services
                 throw new Exception($"Error while creating file for recipe {recipe.Name}", e);
             }
 
+            return Task.CompletedTask;
         }
 
-        public void DeleteRecipe(Guid id)
+        public Task DeleteRecipe(Guid id)
         {
             if (id == Guid.Empty)
                 throw new ArgumentNullException(nameof(id));
@@ -69,6 +79,8 @@ namespace CookBook.Services
             else throw new FileNotFoundException($"File {filePath} not found");
             
             _recipes.Remove(recipe);
+
+            return Task.CompletedTask;
         }
 
         

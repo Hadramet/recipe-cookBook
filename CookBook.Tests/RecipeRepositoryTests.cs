@@ -33,7 +33,7 @@ namespace CookBook.Tests
         }
 
         [Fact]
-        public void RecipeRepository_WhenInitialized_LoadsRecipesFromRepository()
+        public void RecipeRepository_WhenInitialized_LoadsRecipesFromRepositoryAsync()
         {
             string testId = MethodBase.GetCurrentMethod()?.Name;
             string filePath = TestFaker.CreateRecipeFile(testId);
@@ -41,9 +41,9 @@ namespace CookBook.Tests
             string storagePath = Path.GetDirectoryName(filePath);
 
             var repository = new RecipeRepository(storagePath);
-            var recipes = repository.GetRecipes();
+            var recipes =  repository.GetRecipes();
 
-            Assert.Equal(2, recipes.Count());
+            Assert.Equal(2, recipes.Result.Count());
 
             TestFaker.DeleteTestDirectory(storagePath);
         }
@@ -59,20 +59,20 @@ namespace CookBook.Tests
             var repository = new RecipeRepository(storagePath);
             var recipe = repository.GetRecipeById(testGuid);
 
-            Assert.Equal(testGuid.ToString(), recipe.Name);
+            Assert.Equal(testGuid.ToString(), recipe.Result.Name);
 
             TestFaker.DeleteTestDirectory(storagePath);
         }
 
         [Fact]
-        public void GetRecipeById_WhenCalled_ThrowsException_WhenIdIsEmpty()
+        public async Task GetRecipeById_WhenCalled_ThrowsException_WhenIdIsEmpty()
         {
             string testId = MethodBase.GetCurrentMethod()?.Name;
             string filePath = TestFaker.CreateRecipeFile(testId);
             string storagePath = Path.GetDirectoryName(filePath);
 
             var repository = new RecipeRepository(storagePath);
-            Assert.Throws<ArgumentNullException>(() => repository.GetRecipeById(Guid.Empty));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => repository.GetRecipeById(Guid.Empty));
 
             TestFaker.DeleteTestDirectory(storagePath);
         }
@@ -88,7 +88,7 @@ namespace CookBook.Tests
             var repository = new RecipeRepository(storagePath);
             repository.DeleteRecipe(testGuid);
 
-            Assert.Empty(repository.GetRecipes());
+            Assert.Empty(repository.GetRecipes().Result);
             Assert.False(File.Exists(filePath2));
 
             TestFaker.DeleteTestDirectory(storagePath);
@@ -120,8 +120,9 @@ namespace CookBook.Tests
                 }
             });
             
-            Assert.Equal(2,repository.GetRecipes().Count());
+            Assert.Equal(2,repository.GetRecipes().Result.Count());
             Assert.Equal(2, Directory.GetFiles(storagePath).Length);
+            Assert.Equal("Other", repository.GetRecipes().Result.Last().Type);
 
             TestFaker.DeleteTestDirectory(storagePath);
 

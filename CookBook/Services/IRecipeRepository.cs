@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CookBook.Model;
 
 namespace CookBook.Services;
 
 public interface IRecipeRepository
 {
-    IEnumerable<Recipe> GetRecipes();
-    Recipe GetRecipeById(Guid id);
-    void AddRecipe(Recipe recipe);
-    void DeleteRecipe(Guid id);
+    Task<IEnumerable<Recipe>> GetRecipes();
+    Task<Recipe> GetRecipeById(Guid id);
+    Task AddRecipe(Recipe recipe);
+    Task DeleteRecipe(Guid id);
 }
