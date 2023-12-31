@@ -99,7 +99,6 @@ namespace CookBook
             writer.WriteEndElement();
             writer.WriteEndElement();
             writer.WriteEndDocument();
-            writer.Close();
             Close();
 
             RecipeAddedSignal(fileName);

@@ -8,9 +8,12 @@ namespace CookBook.Tests
 {
     internal class TestFaker
     {
-        private const string _recipeXmlContent = @"<?xml version=""1.0""?>
+        public static string GetRecipeXmlContent(Guid id=default)
+        {
+
+            string recipeXmlContent = @"<?xml version=""1.0""?>
 <ListOfRecipes>
-    <RecipeData Name=""TestRecipe"" Type=""Vegan""
+    <RecipeData Name="""+ id + @""" Type=""Vegan"" Id=""" + id + @"""
         Text=""Preheat the oven to 350°F and line a baking sheet with parchment paper. Toss the butternut squash with a drizzle of olive oil and a few generous pinches of salt and pepper. Roast until golden brown, 20 to 25 minutes.
 Make the cashew cream: Blend together the drained raw cashews, fresh water, garlic, lemon juice, 1/2 teaspoon salt and pepper.
 
@@ -37,9 +40,12 @@ Assemble the shells. Spread ¼ cup of the reserved cashew cream on the bottom of
         </Ingridients>
     </RecipeData>
 </ListOfRecipes>";
+            return recipeXmlContent;
+        }
 
 
-        public static string CreateRecipeFile(string testId ,string folderName="CookBook.Tests") 
+
+        public static string CreateRecipeFile(string testId, string folderName = "CookBook.Tests", Guid id = default)
         {
             string tempFolderName = Path.Combine(folderName, testId);
             string tempFolder = Path.GetTempPath();
@@ -50,11 +56,11 @@ Assemble the shells. Spread ¼ cup of the reserved cashew cream on the bottom of
                 Directory.CreateDirectory(tempFolderName);
             }
 
-            
+
             var randomFileName = Path.GetRandomFileName();
             randomFileName = Path.ChangeExtension(randomFileName, "xml");
             string fileName = Path.Combine(tempFolderName, randomFileName);
-            File.WriteAllText(fileName, _recipeXmlContent);
+            File.WriteAllText(fileName, GetRecipeXmlContent(id));
             return fileName;
         }
         public static void DeleteRecipeFile(string fileName)
@@ -63,6 +69,9 @@ Assemble the shells. Spread ¼ cup of the reserved cashew cream on the bottom of
         }
 
 
-
+        public static void DeleteTestDirectory(string storagePath)
+        {
+            Directory.Delete(storagePath, true);
+        }
     }
 }

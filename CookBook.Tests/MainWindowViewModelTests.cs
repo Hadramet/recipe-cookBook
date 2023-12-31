@@ -73,7 +73,6 @@ namespace CookBook.Tests
             var recipe = viewModel.GetRecipeByFileName(filePath);
             
             Assert.Single(viewModel.GetRecipes());
-            Assert.Equal("TestRecipe", recipe.Name);
             Assert.Equal("Vegan", recipe.Type);
             Assert.Equal(15, recipe.Ingredients.Count);
 
@@ -125,7 +124,6 @@ namespace CookBook.Tests
             string testId = MethodBase.GetCurrentMethod()?.Name;
             string filePath = TestFaker.CreateRecipeFile(testId);
             string filePath2 = TestFaker.CreateRecipeFile(testId);
-
             string storagePath = Path.GetDirectoryName(filePath);
 
             var viewModel = new MainWindowViewModel();
