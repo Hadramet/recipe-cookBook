@@ -5,57 +5,51 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Cookbook"
-    Width="691"
-    Height="514"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    Background="Orange"
     Icon="/CookBook;component/Images/cake_slice1.ico"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <Window.Background>
-        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-            <GradientStop Offset="0.228" Color="Orange" />
-            <GradientStop Offset="1" Color="LemonChiffon" />
-        </LinearGradientBrush>
-    </Window.Background>
 
-    <Canvas>
-        <Button
-            x:Name="button1"
-            Canvas.Left="79"
-            Canvas.Top="0"
-            Width="140"
-            Height="32"
-            Margin="562,-1,4,0"
-            VerticalAlignment="Top"
-            Click="AddRecipeClick"
-            Content="Add recipe"
-            FontSize="14"
-            FontStyle="Normal"
-            FontWeight="Normal"
-            Foreground="BlanchedAlmond">
-            <Button.LayoutTransform>
-                <RotateTransform Angle="90" />
-            </Button.LayoutTransform>
-            <Button.Background>
-                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                    <GradientStop Offset="0" Color="Cornsilk" />
-                    <GradientStop Offset="1" Color="Teal" />
-                </LinearGradientBrush>
-            </Button.Background>
-        </Button>
+    <Grid Margin="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="1"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                x:Name="button1"
+                Margin="0,0,10,0"
+                Background="Teal"
+                Click="AddRecipeClick"
+                Content="Add recipe"
+                Foreground="White" />
+            <Button
+                x:Name="delRecipeButton"
+                Background="#71FF4500"
+                Click="DelRecipeButtonClick"
+                Content="Delete recipe"
+                Foreground="AliceBlue" />
+        </StackPanel>
+
+
         <StackPanel
             x:Name="stack"
-            Canvas.Left="0"
-            Canvas.Top="-166"
-            Width="390"
-            Height="418"
-            MaxWidth="390"
-            Margin="0,166,208,53">
+            Grid.Row="1"
+            Grid.Column="0">
             <TextBlock
                 x:Name="textBlock1"
-                Width="236"
-                Height="70"
-                Margin="20,100,20,10"
                 FontSize="16"
                 FontStretch="SemiCondensed"
                 FontWeight="Bold"
@@ -67,25 +61,18 @@
         </StackPanel>
         <TreeView
             x:Name="treeView1"
-            Width="252"
-            Height="438"
-            Margin="389,0,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
+            Grid.Row="1"
+            Grid.Column="1"
             Background="LemonChiffon"
             Foreground="White" />
 
         <Expander
             x:Name="expander1"
-            Canvas.Left="-1"
-            Canvas.Top="444"
-            Width="642"
-            Height="52"
-            VerticalAlignment="Top"
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
             Collapsed="Expander1Collapsed"
             Expanded="Expander1Expanded"
-            FontStyle="Italic"
-            FontWeight="Normal"
             Header="Searching for a recipe">
             <Grid Height="30">
                 <Grid.ColumnDefinitions>
@@ -110,16 +97,6 @@
                     TextChanged="Search" />
             </Grid>
         </Expander>
-        <Button
-            x:Name="delRecipeButton"
-            Canvas.Left="0"
-            Canvas.Top="415"
-            Width="120"
-            Height="23"
-            Background="#71FF4500"
-            Click="DelRecipeButtonClick"
-            Content="Delete recipe"
-            Foreground="AliceBlue" />
-    </Canvas>
+    </Grid>
 
 </Window>

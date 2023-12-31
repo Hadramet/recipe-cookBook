@@ -35,11 +35,8 @@ namespace CookBook
             addWindow.RecipeAddedSignal += ReadRecipeFromXml;
         }
 
-
-
         private void ReadRecipeFromXml(string fileName)
         {
-            // TODO : 
             _viewModel.ReadRecipeFromFile(fileName);
             AddRecipeToTree(_viewModel.GetRecipeByFileName(fileName));
         }
@@ -70,11 +67,6 @@ namespace CookBook
             typeItem.Items.Add(rec);
             SortElementsInNode(_root);
             SortElementsInNode(typeItem);
-        }
-
-        private static void SortElementsInNode(TreeViewItem item)
-        {
-            item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
         }
 
         private void RecipeDoubleClicked(object sender, EventArgs e)
@@ -127,8 +119,8 @@ namespace CookBook
 
         private void GetFileNames()
         {
-            // TODO :
-            var storagePath = App.GetStoragePath();
+            
+            string storagePath = App.GetRecipeStorePath();
             _viewModel.InitializeStorage(storagePath);
             
             var recipes = _viewModel.GetRecipes();
@@ -136,11 +128,6 @@ namespace CookBook
             {
                 AddRecipeToTree(recipe);
             }
-        }
-
-        private void AddRoot()
-        {
-            treeView1.Items.Add(_root);
         }
 
         private void CreateTree()
@@ -156,6 +143,29 @@ namespace CookBook
                 AddRecipeToTree(recipe);
         }
 
+        private void DelRecipeButtonClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RemoveRecipe(_curShowIndex);
+            RefreshTreee();
+        }
+
+        // =================================================================================
+        // UI logic without any business logic api
+        // =================================================================================
+
+        // TODO : UI logic
+        private static void SortElementsInNode(TreeViewItem item)
+        {
+            item.Items.SortDescriptions.Add(new SortDescription("Header", ListSortDirection.Ascending));
+        }
+
+        // TODO : UI logic
+        private void AddRoot()
+        {
+            treeView1.Items.Add(_root);
+        }
+
+        // TODO : UI logic
         private void CheckName()
         {
             if (recipeNameSearch == null) return;
@@ -182,6 +192,7 @@ namespace CookBook
             }
         }
 
+        // TODO : UI logic
         private void CheckType()
         {
             if (recipeTypeSearch == null) return;
@@ -199,14 +210,13 @@ namespace CookBook
             }
         }
 
+        // TODO : UI logic
         private void Expander1Collapsed(object sender, RoutedEventArgs e)
         {
             RefreshTreee();
-
-            var a = new DoubleAnimation { From = Height, To = Height - 30 };
-            BeginAnimation(HeightProperty, a);
         }
 
+        // TODO : UI logic
         private void Search(object sender, TextChangedEventArgs e)
         {
             RefreshTreee();
@@ -215,6 +225,7 @@ namespace CookBook
             CheckIngridient();
         }
 
+        // TODO : UI logic
         private void CheckIngridient()
         {
             if (recipeIngrSearch == null) return;
@@ -254,21 +265,15 @@ namespace CookBook
             }
         }
 
+        // TODO : UI logic
         private void Expander1Expanded(object sender, RoutedEventArgs e)
         {
             RefreshTreee();
             CheckType();
             CheckName();
             CheckIngridient();
-
-            var a = new DoubleAnimation { From = Height, To = Height + 30 };
-            BeginAnimation(HeightProperty, a);
         }
 
-        private void DelRecipeButtonClick(object sender, RoutedEventArgs e)
-        {
-            _viewModel.RemoveRecipe(_curShowIndex);
-            RefreshTreee();
-        }
+        
     }
 }
