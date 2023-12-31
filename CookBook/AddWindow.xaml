@@ -98,7 +98,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn
                         Width="2*"
-                        Binding="{Binding Path=Ingr}"
+                        Binding="{Binding Path=Name}"
                         Header="Name" />
                     <DataGridTextColumn
                         Width="1*"

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,8 +6,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Xml;
 using CookBook.Extensions;
+using CookBook.Helpers;
+using CookBook.Model;
 using CookBook.ViewModel;
 
 namespace CookBook
@@ -18,7 +18,7 @@ namespace CookBook
         private readonly TreeViewItem _root = new TreeViewItem { Header = "All dishes", IsExpanded = true };
         private int _curShowIndex;
 
-        private MainWindowViewModel _viewModel = new();
+        private MainWindowViewModel _viewModel = new(new MessageHelper());
         public MainWindow()
         {
             InitializeComponent();
@@ -29,8 +29,8 @@ namespace CookBook
 
         public void AddRecipeClick(object sender, RoutedEventArgs e)
         {
-            _viewModel.SortItems();
-            var addWindow = new AddWindow(_viewModel.GetItemsList());
+            _viewModel.SortRecipeTypes();
+            var addWindow = new AddWindow(_viewModel.GetRecipeTypes());
             addWindow.Show();
             addWindow.RecipeAddedSignal += ReadRecipeFromXml;
         }
@@ -39,6 +39,7 @@ namespace CookBook
 
         private void ReadRecipeFromXml(string fileName)
         {
+            // TODO : 
             _viewModel.ReadRecipeFromFile(fileName);
             AddRecipeToTree(_viewModel.GetRecipeByFileName(fileName));
         }
@@ -61,7 +62,7 @@ namespace CookBook
             {
                 typeItem = new TreeViewItem { Header = recipe.Type, IsExpanded = true };
                 _root.Items.Add(typeItem);
-                _viewModel.AddItem(recipe.Type);
+                _viewModel.AddRecipeType(recipe.Type);
             }
 
             var rec = new TreeViewItem { Header = recipe.Name };
@@ -104,13 +105,13 @@ namespace CookBook
                 Foreground = Brushes.White,
                 Content = recipe.Type
             });
-            foreach (Ingridient ingridient in recipe.Ingridients)
+            foreach (Ingredient ingridient in recipe.Ingredients)
             {
                 stack.Children.Add(new Label
                 {
                     FontWeight = FontWeights.Thin,
                     HorizontalContentAlignment = HorizontalAlignment.Right,
-                    Content = ingridient.Ingr + " " + ingridient.Col + " " + ingridient.Ed
+                    Content = ingridient.Name + " " + ingridient.Col + " " + ingridient.Ed
                 });
             }
             stack.Children.Add(new TextBlock
@@ -126,11 +127,15 @@ namespace CookBook
 
         private void GetFileNames()
         {
-            if (!Directory.Exists("Recipes"))
-                return;
-            string[] files = Directory.GetFiles("Recipes/", "*.xml");
-            foreach (string file in files)
-                ReadRecipeFromXml(file);
+            // TODO :
+            var storagePath = App.GetStoragePath();
+            _viewModel.InitializeStorage(storagePath);
+            
+            var recipes = _viewModel.GetRecipes();
+            foreach (var recipe in recipes)
+            {
+                AddRecipeToTree(recipe);
+            }
         }
 
         private void AddRoot()
@@ -140,7 +145,7 @@ namespace CookBook
 
         private void CreateTree()
         {
-            _root.AddItemsToTreeView(_viewModel.GetItemsTree().ToTreeViewItems());
+            _root.AddItemsToTreeView(_viewModel.GetRecipeTypes().ToTreeViewItems());
         }
 
         private void RefreshTreee()
@@ -227,9 +232,9 @@ namespace CookBook
                     {
                         if (Equals(recipe.Name, ri.Header))
                         {
-                            foreach (Ingridient ingridient in recipe.Ingridients)
+                            foreach (Ingredient ingridient in recipe.Ingredients)
                             {
-                                if (ingridient.Ingr.ToLower().Contains(recipeIngrSearch.Text.ToLower()))
+                                if (ingridient.Name.ToLower().Contains(recipeIngrSearch.Text.ToLower()))
                                     isIngrCont = true;
                             }
                             break;
@@ -262,31 +267,8 @@ namespace CookBook
 
         private void DelRecipeButtonClick(object sender, RoutedEventArgs e)
         {
-            if (
-                MessageBox.Show("The recipe will be permanently deleted. Do you want me to continue?", "Delete a recipe", MessageBoxButton.YesNo,
-                                MessageBoxImage.Warning) == MessageBoxResult.No)
-                return;
-            Recipe rec = _viewModel.GetRecipes().ToList()[_curShowIndex];
-            File.Delete(rec.FileName);
-            _viewModel.RemoveItem(rec.Type);
-            _viewModel.RemoveRecipeByFileName(rec.FileName);
+            _viewModel.RemoveRecipe(_curShowIndex);
             RefreshTreee();
         }
-    }
-
-    public class Ingridient
-    {
-        public string Ingr { get; set; }
-        public string Col { get; set; }
-        public string Ed { get; set; }
-    }
-
-    public class Recipe
-    {
-        public List<Ingridient> Ingridients = new List<Ingridient>();
-        public string FileName { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Text { get; set; }
     }
 }

@@ -1,39 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
+using CookBook.Helpers;
+using CookBook.Model;
 
 namespace CookBook.ViewModel
 {
 
     public class MainWindowViewModel
     {
-        private  List<Recipe> _recipeList = new();
-        private  List<string> _typeList = new();
+        private readonly IMessageHelper _messageHelper;
+        private readonly List<Recipe> _recipeList = new();
+        private readonly List<string> _typeList = new();
 
-        public IEnumerable<string> GetItemsTree()
+        public MainWindowViewModel() {}
+        public MainWindowViewModel(IMessageHelper messageHelper) : this()
+        {
+            _messageHelper = messageHelper;
+        }
+
+
+        public IEnumerable<string> GetRecipeTypes()
         { 
             return _typeList;
         }
 
-        public IEnumerable<string> GetItemsList()
-        {
-            return _typeList;
-        }
 
-        public void RemoveItem(string item)
+        public void RemoveRecipeType(string item)
         {
             _typeList.Remove(item);
         }
 
-        public void AddItem(string item)
+        public void AddRecipeType(string item)
         {
             _typeList.Add(item);
         }
 
-        public void SortItems()
+        public void SortRecipeTypes()
         {
             _typeList.Sort();
         }
@@ -41,7 +45,7 @@ namespace CookBook.ViewModel
         public void ReadRecipeFromFile(string fileName)
         {
             var recipe = new Recipe {FileName = fileName};
-            var ingr = new Ingridient();
+            var ingredient = new Ingredient();
             var reader = new XmlTextReader(fileName);
             while (reader.Read())
             {
@@ -62,14 +66,14 @@ namespace CookBook.ViewModel
                                 recipe.Text = value;
                                 break;
                             case ("Ingr"):
-                                ingr = new Ingridient {Ingr = value};
+                                ingredient = new Ingredient {Name = value};
                                 break;
                             case ("Col"):
-                                ingr.Col = value;
+                                ingredient.Col = value;
                                 break;
                             case ("Ed"):
-                                ingr.Ed = value;
-                                recipe.Ingridients.Add(ingr);
+                                ingredient.Ed = value;
+                                recipe.Ingredients.Add(ingredient);
                                 break;
                         }
                     }
@@ -95,5 +99,27 @@ namespace CookBook.ViewModel
             _recipeList.Remove(item);
         }
 
+        public void RemoveRecipe(int index)
+        {
+            if (index < 0 || index >= _recipeList.Count) return;
+            
+            const string message = "The recipe will be permanently deleted. Do you want me to continue?";
+            const string title = "Delete a recipe";
+
+            if (!_messageHelper.ShowMessage(message, title)) return;
+
+            var rec = _recipeList[index];
+            File.Delete(rec.FileName);
+            RemoveRecipeType(rec.Type);
+            RemoveRecipeByFileName(rec.FileName);
+        }
+
+        public void InitializeStorage(string storagePath)
+        {
+            if (string.IsNullOrEmpty(storagePath)) return;
+            if (!Directory.Exists(storagePath)) return;
+            string[] files = Directory.GetFiles(storagePath, "*.xml");
+            foreach (string file in files) ReadRecipeFromFile(file);
+        }
     }
 }

@@ -39,10 +39,21 @@ Assemble the shells. Spread ¼ cup of the reserved cashew cream on the bottom of
 </ListOfRecipes>";
 
 
-        public static string CreateRecipeFile()
+        public static string CreateRecipeFile(string testId ,string folderName="CookBook.Tests") 
         {
-            var fileName = Path.GetTempFileName();
-            fileName = fileName.Replace(".tmp", ".xml");
+            string tempFolderName = Path.Combine(folderName, testId);
+            string tempFolder = Path.GetTempPath();
+            tempFolderName = Path.Combine(tempFolder, tempFolderName);
+
+            if (!Directory.Exists(tempFolderName))
+            {
+                Directory.CreateDirectory(tempFolderName);
+            }
+
+            
+            var randomFileName = Path.GetRandomFileName();
+            randomFileName = Path.ChangeExtension(randomFileName, "xml");
+            string fileName = Path.Combine(tempFolderName, randomFileName);
             File.WriteAllText(fileName, _recipeXmlContent);
             return fileName;
         }

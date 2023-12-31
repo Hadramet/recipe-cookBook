@@ -4,13 +4,14 @@ using System.Windows;
 using System.Windows.Media;
 using System.Xml;
 using System.IO;
+using CookBook.Model;
 
 
 namespace CookBook
 {
     public partial class AddWindow
     {
-        private readonly ObservableCollection<Ingridient> _dataList = new ObservableCollection<Ingridient>();
+        private readonly ObservableCollection<Ingredient> _dataList = new ObservableCollection<Ingredient>();
         private readonly List<string> _weigthList = new List<string>(new[]{"gram","kilogram","teaspoon,","tablespoon","cup","milliliter","liter","pinch","piece","clove","jar"});
 
         public delegate void RecipeEventHandler(string fileName);
@@ -30,7 +31,7 @@ namespace CookBook
 
         private void FillData()
         {
-            _dataList.Add(new Ingridient { Ingr = "", Col = "", Ed = "" });
+            _dataList.Add(new Ingredient { Name = "", Col = "", Ed = "" });
             //_dataList.Add(new Ingridient { Ingr = "", Col = "", Ed = "" });
             //_dataList.Add(new Ingridient { Ingr = "onion", Col = "1", Ed = "piece" });
             //_dataList.Add(new Ingridient { Ingr = "sugar", Col = "2", Ed = "teaspoon" });
@@ -80,13 +81,13 @@ namespace CookBook
 
             if (_dataList != null)
             {
-                writer.WriteStartElement("Ingridients");
-                foreach (Ingridient ingridient in _dataList)
+                writer.WriteStartElement("Ingredients");
+                foreach (Ingredient ingridient in _dataList)
                 {
-                    if (ingridient.Ingr.Length != 0)
+                    if (ingridient.Name.Length != 0)
                     {
-                        writer.WriteStartElement("Ingridient");
-                        writer.WriteAttributeString("Ingr", ingridient.Ingr);
+                        writer.WriteStartElement("Ingredient");
+                        writer.WriteAttributeString("Name", ingridient.Name);
                         writer.WriteAttributeString("Col", ingridient.Col);
                         writer.WriteAttributeString("Ed", ingridient.Ed);
                         writer.WriteEndElement();
@@ -106,7 +107,7 @@ namespace CookBook
 
         private void AddRowClick(object sender, RoutedEventArgs e)
         {
-            _dataList.Add(new Ingridient());
+            _dataList.Add(new Ingredient());
         }
 
         private void RecipeNameTextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
