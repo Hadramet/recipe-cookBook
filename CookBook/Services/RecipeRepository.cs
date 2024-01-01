@@ -12,7 +12,6 @@ namespace CookBook.Services
     {
         private readonly string _repositoryPath;
         private readonly List<Recipe> _recipes = new();
-        private readonly IEnumerable<string> _recipeTypes = new List<string> { "Vegan", "Vegetarian", "Meat", "Fish", "Other"};
 
         public RecipeRepository(string repositoryPath)
         {
@@ -24,7 +23,6 @@ namespace CookBook.Services
             InitializeRepository();
             InitializeRecipes();
         }
-
 
         public Task<IEnumerable<Recipe>> GetRecipes()
         {
@@ -48,10 +46,6 @@ namespace CookBook.Services
             try
             {
                 recipe.Id = Guid.NewGuid();
-
-                if (_recipeTypes.Contains(recipe.Type) == false)
-                    recipe.Type = _recipeTypes.Last();
-
                 string filePath = RecipeHelper.WriteRecipeToFile(recipe, _repositoryPath);
                 recipe.FileName = Path.GetFileName(filePath);
                 

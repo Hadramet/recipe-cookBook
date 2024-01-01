@@ -11,6 +11,7 @@ namespace CookBook.Services
     // TODO : logging 
     public class RecipeService : IRecipeService
     {
+        private readonly IEnumerable<string> _recipeTypes = new List<string> { "Vegan", "Vegetarian", "Meat", "Fish", "Other"};
         private readonly IRecipeRepository _recipeRepository;
 
         public RecipeService(IRecipeRepository recipeRepository)
@@ -29,6 +30,10 @@ namespace CookBook.Services
             return task.Result;
         }
 
+        public IEnumerable<string> GetRecipeTypes()
+        {
+            return _recipeTypes;
+        }
         public Recipe GetRecipeById(Guid id)
         {
             var task = _recipeRepository.GetRecipeById(id);
@@ -43,6 +48,9 @@ namespace CookBook.Services
 
         public void SaveRecipe(Recipe recipe)
         {
+            if (!_recipeTypes.Contains(recipe.Type))
+                recipe.Type = _recipeTypes.Last();
+
             var task = _recipeRepository.AddRecipe(recipe);
 
             if (!task.IsCompletedSuccessfully)

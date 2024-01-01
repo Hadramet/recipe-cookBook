@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 using CookBook.Helpers;
 using CookBook.Model;
+using CookBook.Services;
 
 namespace CookBook.ViewModel
 {
@@ -11,115 +12,55 @@ namespace CookBook.ViewModel
     public class MainWindowViewModel
     {
         private readonly IMessageHelper _messageHelper;
-        private readonly List<Recipe> _recipeList = new();
-        private readonly List<string> _typeList = new();
+        private readonly IRecipeService _recipeService;
 
-        public MainWindowViewModel() {}
-        public MainWindowViewModel(IMessageHelper messageHelper) : this()
+        public MainWindowViewModel(IMessageHelper messageHelper, IRecipeService recipeService)
         {
             _messageHelper = messageHelper;
+            _recipeService = recipeService;
         }
 
 
         public IEnumerable<string> GetRecipeTypes()
         { 
-            return _typeList;
+            return _recipeService.GetRecipeTypes();
         }
 
-
-        public void RemoveRecipeType(string item)
-        {
-            _typeList.Remove(item);
-        }
-
-        public void AddRecipeType(string item)
-        {
-            _typeList.Add(item);
-        }
-
-        public void SortRecipeTypes()
-        {
-            _typeList.Sort();
-        }
-
-        public void ReadRecipeFromFile(string fileName)
-        {
-            var recipe = new Recipe {FileName = fileName};
-            var ingredient = new Ingredient();
-            var reader = new XmlTextReader(fileName);
-            while (reader.Read())
-            {
-                if (reader.NodeType == XmlNodeType.Element && reader.HasAttributes)
-                {
-                    while (reader.MoveToNextAttribute())
-                    {
-                        string value = reader.Value;
-                        switch (reader.Name)
-                        {
-                            case ("Name"):
-                                recipe.Name = value;
-                                break;
-                            case ("Type"):
-                                recipe.Type = value;
-                                break;
-                            case ("Text"):
-                                recipe.Text = value;
-                                break;
-                            case ("Ingr"):
-                                ingredient = new Ingredient {Name = value};
-                                break;
-                            case ("Col"):
-                                ingredient.Col = value;
-                                break;
-                            case ("Ed"):
-                                ingredient.Ed = value;
-                                recipe.Ingredients.Add(ingredient);
-                                break;
-                        }
-                    }
-                }
-            }
-            reader.Close();
-            _recipeList.Add(recipe);
-        }
 
         public Recipe GetRecipeByFileName(string fileName)
         {
-            return _recipeList.FirstOrDefault(recipe => recipe.FileName == fileName);
+            var recipes = _recipeService.GetRecipeList();
+            var recipe = recipes.FirstOrDefault(r => r.FileName == fileName);
+            return recipe;
         }
 
         public IEnumerable<Recipe> GetRecipes()
         {
-            return _recipeList;
+            return _recipeService.GetRecipeList();
         }
 
         public void RemoveRecipeByFileName(string name)
         {
-            var item = _recipeList.First(recipe => recipe.FileName.Equals(name));
-            _recipeList.Remove(item);
+            var recipes = _recipeService.GetRecipeList();
+            var recipe = recipes.FirstOrDefault(r => r.FileName == name);
+            if (recipe == null) return;
+            _recipeService.RemoveRecipe(recipe.Id);
         }
 
         public void RemoveRecipe(int index)
         {
-            if (index < 0 || index >= _recipeList.Count) return;
+            var recipes = _recipeService.GetRecipeList();
+            var enumerable = recipes.ToList();
+            if (index < 0 || index >= enumerable.Count) return;
             
             const string message = "The recipe will be permanently deleted. Do you want me to continue?";
             const string title = "Delete a recipe";
 
             if (!_messageHelper.ShowMessage(message, title)) return;
 
-            var rec = _recipeList[index];
-            File.Delete(rec.FileName);
-            RemoveRecipeType(rec.Type);
-            RemoveRecipeByFileName(rec.FileName);
+            var recipe = enumerable[index];
+            _recipeService.RemoveRecipe(recipe.Id);
         }
 
-        public void InitializeStorage(string storagePath)
-        {
-            if (string.IsNullOrEmpty(storagePath)) return;
-            if (!Directory.Exists(storagePath)) return;
-            string[] files = Directory.GetFiles(storagePath, "*.xml");
-            foreach (string file in files) ReadRecipeFromFile(file);
-        }
     }
 }

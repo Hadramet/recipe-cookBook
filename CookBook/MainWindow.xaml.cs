@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CookBook.Extensions;
 using CookBook.Helpers;
 using CookBook.Model;
@@ -18,7 +19,7 @@ namespace CookBook
         private readonly TreeViewItem _root = new TreeViewItem { Header = "All dishes", IsExpanded = true };
         private int _curShowIndex;
 
-        private MainWindowViewModel _viewModel = new(new MessageHelper());
+        private MainWindowViewModel _viewModel = Ioc.Default.GetService<MainWindowViewModel>();
         public MainWindow()
         {
             InitializeComponent();
@@ -29,15 +30,16 @@ namespace CookBook
 
         public void AddRecipeClick(object sender, RoutedEventArgs e)
         {
-            _viewModel.SortRecipeTypes();
-            var addWindow = new AddWindow(_viewModel.GetRecipeTypes());
+            var recipes = _viewModel.GetRecipeTypes();
+            var addWindow = new AddWindow(recipes);
             addWindow.Show();
             addWindow.RecipeAddedSignal += ReadRecipeFromXml;
         }
 
         private void ReadRecipeFromXml(string fileName)
         {
-            _viewModel.ReadRecipeFromFile(fileName);
+            // TODO : 
+            //_viewModel.ReadRecipeFromFile(fileName);
             AddRecipeToTree(_viewModel.GetRecipeByFileName(fileName));
         }
 
@@ -59,7 +61,6 @@ namespace CookBook
             {
                 typeItem = new TreeViewItem { Header = recipe.Type, IsExpanded = true };
                 _root.Items.Add(typeItem);
-                _viewModel.AddRecipeType(recipe.Type);
             }
 
             var rec = new TreeViewItem { Header = recipe.Name };
@@ -119,9 +120,6 @@ namespace CookBook
 
         private void GetFileNames()
         {
-            
-            string storagePath = App.GetRecipeStorePath();
-            _viewModel.InitializeStorage(storagePath);
             
             var recipes = _viewModel.GetRecipes();
             foreach (var recipe in recipes)

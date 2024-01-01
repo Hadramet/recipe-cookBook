@@ -122,7 +122,7 @@ namespace CookBook.Tests
             
             Assert.Equal(2,repository.GetRecipes().Result.Count());
             Assert.Equal(2, Directory.GetFiles(storagePath).Length);
-            Assert.Equal("Other", repository.GetRecipes().Result.Last().Type);
+            Assert.Equal("Test", repository.GetRecipes().Result.Last().Type);
 
             TestFaker.DeleteTestDirectory(storagePath);
 

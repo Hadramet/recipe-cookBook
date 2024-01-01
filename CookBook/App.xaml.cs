@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Windows;
+using CookBook.Helpers;
+using CookBook.Services;
+using CookBook.ViewModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CookBook
 {
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        public App()
         {
-            base.OnStartup(e);
             InitializeAppEnvironment();
+            Ioc.Default.ConfigureServices(ConfigureServices());
+            InitializeComponent();
         }
-
+        
         private static void InitializeAppEnvironment()
         {
             string environment = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -33,6 +39,16 @@ namespace CookBook
             Current.Resources["StoragePath"] = storagePath;
         }
 
+        private static IServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<IRecipeRepository>(new RecipeRepository(GetRecipeStorePath()));
+            services.AddSingleton<IRecipeService, RecipeService>();
+            services.AddSingleton<IMessageHelper, MessageHelper>();
+            services.AddSingleton<MainWindowViewModel>();
+
+            return services.BuildServiceProvider();
+        }
         public static string GetRecipeStorePath()
         {
             return Current.Resources["RecipeStorePath"] as string;
